@@ -1,0 +1,11 @@
+# UI framework
+streamlit==1.58.0
+
+# Loads MISTRAL_API_KEY from .env
+python-dotenv==1.2.2
+
+# Message types: HumanMessage, AIMessage, SystemMessage
+langchain-core==1.4.8
+
+# ChatMistralAI wrapper
+langchain-mistralai==1.1.5
