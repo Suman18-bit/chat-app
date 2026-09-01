@@ -22,28 +22,32 @@ if "theme" not in st.session_state:
     st.session_state.theme = "Dark"
 
 if "messages" not in st.session_state:
-    # Elite System Prompt enforcing strict math and markdown formatting
+    # ELITE SYSTEM PROMPT: Strictly enforces Markdown, Tables, and Math formatting
     st.session_state.messages = [SystemMessage(content="""You are "MindMentor", an elite AI tutor, academic guide, and empathetic personal advisor. 
 Your goal is to provide clear, structured, and deeply insightful answers.
 
-FORMATTING & MATH RULES (CRITICAL):
-1. MATH: You MUST use standard LaTeX for all mathematics. 
-   - Use `$` for inline math (e.g., $E=mc^2$). 
-   - Use `$$` for block equations, and ALWAYS place `$$` on its own separate line.
-   - NEVER use `\[`, `\]`, `\(`, or `\)`. Streamlit will not render them.
-2. STRUCTURE: Use Markdown effectively. Use `###` for section headers, bullet points for lists, and bold text for key terms.
-3. CODE: Use proper fenced code blocks with language identifiers (e.g., ```python).
+CRITICAL FORMATTING RULES (YOU MUST FOLLOW THESE EXACTLY):
+1. MATHEMATICS:
+   - Use `$` for inline math (e.g., $E=mc^2$).
+   - Use `$$` on its own separate line for block equations.
+   - NEVER wrap math in parentheses like `( \int x dx )` or `( x^2 )`. This breaks the UI.
+   - NEVER use `\[`, `\]`, `\(`, or `\)`.
+2. TABLES:
+   - When presenting data in a grid, you MUST use standard Markdown table syntax with pipes `|` and hyphens `-`.
+   - NEVER use tab-separated text or space-separated columns.
+3. LISTS & HEADERS:
+   - Use `-` or `*` for bullet points.
+   - Use `###` for subheadings to break up long text. Use `**bold**` for key terms.
 
-TONE & CONTENT GUIDELINES:
-1. Socratic Method: Guide the user to understanding. Explain the "why" and "how" before giving the final answer.
-2. Clarity over complexity: Break down difficult concepts using analogies and real-world examples.
-3. Empathy: For personal questions, be objective, non-judgmental, and supportive. Provide actionable frameworks.
-4. Check for understanding: End academic explanations with a brief question or prompt to test their knowledge.
-5. Be concise but thorough. Avoid robotic filler phrases.
+TONE & PEDAGOGY:
+1. Socratic Method: Guide the user. Explain the "why" and "how".
+2. Clarity: Use analogies. Break down complex steps.
+3. Empathy: Be objective and supportive for personal questions.
+4. Check for Understanding: End academic explanations with a brief prompt or question.
 """)]
 
 # =========================================================
-# DYNAMIC CSS (LIGHT & DARK MODE)
+# DYNAMIC CSS (LIGHT & DARK MODE + PREMIUM TABLES)
 # =========================================================
 theme = st.session_state.theme
 
@@ -99,7 +103,7 @@ section[data-testid="stSidebar"] {{
 }}
 
 /* Buttons */
-.stButton > button {{
+.stButton > button, .stDownloadButton > button {{
     background-color: transparent;
     border: 1px solid var(--border);
     color: var(--text-main);
@@ -108,7 +112,7 @@ section[data-testid="stSidebar"] {{
     transition: all 0.2s ease;
     width: 100%;
 }}
-.stButton > button:hover {{
+.stButton > button:hover, .stDownloadButton > button:hover {{
     border-color: var(--accent);
     color: var(--accent);
     background-color: rgba(59, 130, 246, 0.05);
@@ -126,7 +130,7 @@ section[data-testid="stSidebar"] {{
     box-shadow: 0 0 0 1px var(--accent) !important;
 }}
 
-/* Code blocks inside markdown */
+/* Code blocks */
 .stMarkdown code {{
     background-color: var(--code-bg) !important;
     color: var(--text-main) !important;
@@ -141,22 +145,73 @@ div[data-testid="stChatMessage"] {{
     padding: 1rem 0 !important;
 }}
 
-/* Perfect Math Styling - Ensures MathJax inherits theme colors */
+/* Perfect Math Styling */
 .MathJax {{
     color: var(--text-main) !important;
     font-size: 1.05em !important;
 }}
+
+/* PREMIUM MARKDOWN TABLES */
+.stMarkdown table {{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}}
+.stMarkdown th {{
+    background-color: var(--bg-card);
+    color: var(--accent);
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid var(--accent);
+}}
+.stMarkdown td {{
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-main);
+    background-color: var(--bg-deep);
+}}
+.stMarkdown tr:last-child td {{
+    border-bottom: none;
+}}
+.stMarkdown tr:hover td {{
+    background-color: rgba(59, 130, 246, 0.05);
+}}
+
+/* Minimalist scrollbar */
+::-webkit-scrollbar {{ width: 8px; height: 8px; }}
+::-webkit-scrollbar-track {{ background: transparent; }}
+::-webkit-scrollbar-thumb {{ background: var(--border); border-radius: 4px; }}
+::-webkit-scrollbar-thumb:hover {{ background: var(--text-muted); }}
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# MATH FORMATTING HELPER
+# MATH & MARKDOWN CLEANER (The Safety Net)
 # =========================================================
-def format_math(text):
-    """Converts LLM LaTeX delimiters to Streamlit-compatible MathJax delimiters."""
+def clean_and_format(text):
+    """Catches and fixes common LLM formatting mistakes before rendering."""
     if not isinstance(text, str): return text
+    
+    # 1. Fix standard LaTeX brackets that Streamlit hates
     text = text.replace(r'\[', '$$').replace(r'\]', '$$')
     text = text.replace(r'\(', '$').replace(r'\)', '$')
+    
+    # 2. Fix the weird "( \mathcommand ... )" issue
+    # Catches things like ( \int x dx ) and converts to $ \int x dx $
+    text = re.sub(
+        r'\(\s*(\\(?:int|sum|prod|lim|frac|sqrt|alpha|beta|gamma|theta|pi|infty|leq|geq|neq|approx|times|div|cdot|text|mathbf|mathrm).*?)\s*\)', 
+        r'$\1$', 
+        text
+    )
+    
+    # 3. Clean up accidental double spaces or weird line breaks
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
     return text
 
 # =========================================================
@@ -197,17 +252,33 @@ with st.sidebar:
         st.session_state.messages.append(HumanMessage(content="Help me create a structured study schedule. Ask me what I'm studying, my goals, and how much time I have available."))
         st.rerun()
 
-    if st.button("Brainstorm Ideas"):
-        st.session_state.messages.append(HumanMessage(content="I need to brainstorm. Ask me what topic or problem I am trying to figure out, and help me generate structured ideas."))
+    if st.button("Solve a Math Problem"):
+        st.session_state.messages.append(HumanMessage(content="I have a math problem. Ask me to provide it, and then solve it step-by-step using proper LaTeX formatting."))
         st.rerun()
 
     st.divider()
+    st.markdown("#### Export & Manage")
+    
+    # Export Notes Feature
+    if len(st.session_state.messages) > 1:
+        notes = "# MindMentor Study Notes\n\n"
+        for msg in st.session_state.messages:
+            if isinstance(msg, HumanMessage):
+                notes += f"### ❓ Question\n{msg.content}\n\n"
+            elif isinstance(msg, AIMessage):
+                notes += f"### 💡 Answer\n{msg.content}\n\n---\n\n"
+        
+        st.download_button(
+            label="📥 Export Notes (.md)",
+            data=notes,
+            file_name="mindmentor_notes.md",
+            mime="text/markdown",
+            use_container_width=True
+        )
 
     if st.button("Clear Chat History"):
         st.session_state.messages = [st.session_state.messages[0]] # Keep system prompt
         st.rerun()
-
-    st.caption("Tip: Use `$` for inline math and `$$` for block equations.")
 
 # =========================================================
 # HEADER
@@ -233,10 +304,11 @@ for msg in st.session_state.messages:
     role = "user" if isinstance(msg, HumanMessage) else "assistant"
     
     with st.chat_message(role):
-        st.markdown(format_math(msg.content))
+        # Apply the cleaning function to all messages before rendering
+        st.markdown(clean_and_format(msg.content))
 
 # =========================================================
-# CHAT INPUT + AI LOGIC (Frictionless)
+# CHAT INPUT + AI LOGIC
 # =========================================================
 if prompt := st.chat_input("Ask a question or share your thoughts..."):
     if not prompt.strip():
@@ -251,8 +323,8 @@ if prompt := st.chat_input("Ask a question or share your thoughts..."):
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 result = model.invoke(st.session_state.messages)
-                response = format_math(result.content)
+                response = clean_and_format(result.content)
                 st.markdown(response)
                 
-        # 3. Add AI message to state (No st.rerun() needed here for a smoother UI)
+        # 3. Add AI message to state
         st.session_state.messages.append(AIMessage(content=response))
