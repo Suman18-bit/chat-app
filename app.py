@@ -13,9 +13,9 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="MindMentor AI",
-    page_icon="🧠",
-    layout="centered",
+    page_title="MindMentor AI - Pratima's Tutor",
+    page_icon="🎓",
+    layout="wide", # Wide layout for a premium reading experience
     initial_sidebar_state="expanded",
 )
 
@@ -26,33 +26,33 @@ if "theme" not in st.session_state:
     st.session_state.theme = "Dark"
 
 if "accent_choice" not in st.session_state:
-    st.session_state.accent_choice = "Blue"
+    st.session_state.accent_choice = "Violet" # Elegant violet for a premium feel
 
 if "meta" not in st.session_state:
-    # Parallel store for timestamps, keyed by index in st.session_state.messages
     st.session_state.meta = {}
 
-SYSTEM_PROMPT = """You are "MindMentor", an elite AI tutor, academic guide, and empathetic personal advisor.
-Your goal is to provide clear, structured, and deeply insightful answers.
+# =========================================================
+# SYSTEM PROMPT (TAILOR FOR PRATIMA + WBCHSE CLASS 11 SCIENCE + BENGALI)
+# =========================================================
+SYSTEM_PROMPT = """তুমি "MindMentor", প্রতীমার (একাদশ শ্রেণির বিজ্ঞান বিভাগের ছাত্রী, WBCHSE) জন্য একজন অভিজাত AI টিউটর, একাডেমিক গাইড এবং সহানুভূতিশীল ব্যক্তিগত উপদেষ্টা।
+তোমার লক্ষ্য হলো স্পষ্ট, সুসংগঠিত এবং গভীর অন্তর্দৃষ্টিপূর্ণ উত্তর প্রদান করা।
 
-CRITICAL FORMATTING RULES (YOU MUST FOLLOW THESE EXACTLY):
-1. MATHEMATICS:
-   - Use `$` for inline math (e.g., $E=mc^2$).
-   - Use `$$` on its own separate line for block equations.
-   - NEVER wrap math in parentheses like `( \\int x dx )` or `( x^2 )`. This breaks the UI.
-   - NEVER use `\\[`, `\\]`, `\\(`, or `\\)`.
-2. TABLES:
-   - When presenting data in a grid, you MUST use standard Markdown table syntax with pipes `|` and hyphens `-`.
-   - NEVER use tab-separated text or space-separated columns.
-3. LISTS & HEADERS:
-   - Use `-` or `*` for bullet points.
-   - Use `###` for subheadings to break up long text. Use `**bold**` for key terms.
+অত্যন্ত গুরুত্বপূর্ণ নিয়ম (তোমাকে অবশ্যই এই নিয়মগুলো কঠোরভাবে মানতে হবে):
+1. ভাষা: তোমার সমস্ত উত্তর অবশ্যই **বাংলায়** হতে হবে। তবে গাণিতিক প্রতীক, ইংরেজি পরিভাষা (যেমন Photosynthesis, Integration, Derivation ইত্যাদি যেখানে প্রয়োজন) এবং কোড ব্লক ইংরেজিতে থাকতে পারে।
+2. পাঠ্যক্রম: তুমি পশ্চিমবঙ্গ উচ্চমাধ্যমিক শিক্ষা সংসদ (WBCHSE) এর একাদশ শ্রেণির বিজ্ঞান বিভাগের সিলেবাস (পদার্থবিদ্যা, রসায়ন, জীববিদ্যা, গণিত) খুব ভালোভাবে জানো।
+3. গণিত ও সূত্র (MATH FORMATTING):
+   - ইনলাইন গণিতের জন্য `$` ব্যবহার করো (যেমন $E=mc^2$)।
+   - ব্লক সমীকরণের জন্য `$$` আলাদা লাইনে ব্যবহার করো।
+   - কখনোই গণিতকে ব্র্যাকেট `( \int x dx )` বা `\[ \]` দিয়ে মুড়বে না।
+4. টেবিল ও তালিকা:
+   - ডেটা প্রদর্শনের জন্য মার্কডাউন টেবিল (`| ... |`) ব্যবহার করো।
+   - বুলেট পয়েন্টের জন্য `-` বা `*` এবং সাব-হেডিঙের জন্য `###` ব্যবহার করো।
+5. ব্যক্তিগত পরামর্শ: প্রতীমা যখন পড়াশোনার চাপ, ক্যারিয়ার বা ব্যক্তিগত কোনো সমস্যা নিয়ে কথা বলবে, তখন তুমি একজন বড় দাদা/দিদি বা বন্ধুর মতো সহানুভূতিশীল এবং উৎসাহব্যঞ্জক পরামর্শ দেবে।
 
-TONE & PEDAGOGY:
-1. Socratic Method: Guide the user. Explain the "why" and "how".
-2. Clarity: Use analogies. Break down complex steps.
-3. Empathy: Be objective and supportive for personal questions.
-4. Check for Understanding: End academic explanations with a brief prompt or question.
+পেডাগগি (শিক্ষাদান পদ্ধতি):
+1. সোক্রেটিক পদ্ধতি: প্রতীমাকে প্রশ্ন করে উত্তরের দিকে নিয়ে যাও। "কেন" এবং "কীভাবে" ব্যাখ্যা করো।
+2. বাস্তব উদাহরণ: কঠিন বিষয়গুলো বোঝাতে দৈনন্দিন জীবনের উদাহরণ দাও।
+3. বোঝাপড়া যাচাই: একাডেমিক ব্যাখ্যার শেষে একটি ছোট প্রশ্ন করো যাতে প্রতীমা বুঝতে পারে সে বিষয়টি আয়ত্ত করেছে কিনা।
 """
 
 if "messages" not in st.session_state:
@@ -63,59 +63,58 @@ if "messages" not in st.session_state:
 # ACCENT PALETTES
 # =========================================================
 ACCENTS = {
-    "Blue":   {"main": "#3B82F6", "dim": "#2563EB", "glow": "rgba(59, 130, 246, 0.18)"},
-    "Violet": {"main": "#8B5CF6", "dim": "#7C3AED", "glow": "rgba(139, 92, 246, 0.18)"},
-    "Emerald":{"main": "#10B981", "dim": "#059669", "glow": "rgba(16, 185, 129, 0.18)"},
-    "Amber":  {"main": "#F59E0B", "dim": "#D97706", "glow": "rgba(245, 158, 11, 0.18)"},
-    "Rose":   {"main": "#F43F5E", "dim": "#E11D48", "glow": "rgba(244, 63, 94, 0.18)"},
+    "Violet": {"main": "#8B5CF6", "dim": "#7C3AED", "glow": "rgba(139, 92, 246, 0.15)"},
+    "Sapphire":{"main": "#3B82F6", "dim": "#2563EB", "glow": "rgba(59, 130, 246, 0.15)"},
+    "Emerald":{"main": "#10B981", "dim": "#059669", "glow": "rgba(16, 185, 129, 0.15)"},
+    "Rose":   {"main": "#F43F5E", "dim": "#E11D48", "glow": "rgba(244, 63, 94, 0.15)"},
 }
 
 accent = ACCENTS[st.session_state.accent_choice]
 
 # =========================================================
-# DYNAMIC CSS (LIGHT & DARK MODE + PREMIUM UI)
+# DYNAMIC CSS (PREMIUM QWEN-STYLE UI + BENGALI SUPPORT)
 # =========================================================
 theme = st.session_state.theme
 
 if theme == "Dark":
     css_vars = f"""
-        --bg-deep: #0B1120;
-        --bg-card: #151F32;
-        --bg-card-2: #1B2740;
-        --bg-sidebar: #0B1120;
+        --bg-deep: #09090B;
+        --bg-card: #18181B;
+        --bg-card-2: #27272A;
+        --bg-sidebar: #09090B;
         --accent: {accent['main']};
         --accent-dim: {accent['dim']};
         --accent-glow: {accent['glow']};
-        --text-main: #F8FAFC;
-        --text-muted: #94A3B8;
-        --text-faint: #5B6B85;
-        --border: #26324A;
-        --border-soft: #1C2740;
-        --code-bg: #0B1120;
-        --user-bubble: #1B2740;
+        --text-main: #FAFAFA;
+        --text-muted: #A1A1AA;
+        --text-faint: #71717A;
+        --border: #27272A;
+        --border-soft: #1F1F23;
+        --code-bg: #09090B;
+        --user-bubble: #27272A;
         --assistant-bubble: transparent;
-        --shadow-input: 0 10px 30px rgba(0, 0, 0, 0.45);
-        --shadow-input-focus: 0 10px 36px var(--accent-glow);
-        --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.28);
+        --shadow-input: 0 10px 30px rgba(0, 0, 0, 0.5);
+        --shadow-input-focus: 0 10px 40px var(--accent-glow);
+        --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
         --success: #10B981;
-        --danger: #F87171;
+        --danger: #EF4444;
     """
 else:
     css_vars = f"""
         --bg-deep: #FFFFFF;
-        --bg-card: #F8FAFC;
-        --bg-card-2: #F1F5F9;
-        --bg-sidebar: #F6F8FB;
+        --bg-card: #F9FAFB;
+        --bg-card-2: #F3F4F6;
+        --bg-sidebar: #F9FAFB;
         --accent: {accent['main']};
         --accent-dim: {accent['dim']};
         --accent-glow: {accent['glow']};
-        --text-main: #0F172A;
-        --text-muted: #64748B;
-        --text-faint: #A0AEC0;
-        --border: #E2E8F0;
-        --border-soft: #EDF1F7;
-        --code-bg: #F1F5F9;
-        --user-bubble: #EEF2FF;
+        --text-main: #111827;
+        --text-muted: #4B5563;
+        --text-faint: #9CA3AF;
+        --border: #E5E7EB;
+        --border-soft: #F3F4F6;
+        --code-bg: #F3F4F6;
+        --user-bubble: #F3F4F6;
         --assistant-bubble: transparent;
         --shadow-input: 0 10px 26px rgba(15, 23, 42, 0.08);
         --shadow-input-focus: 0 10px 30px var(--accent-glow);
@@ -126,7 +125,7 @@ else:
 
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,500;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
 
 :root {{
     {css_vars}
@@ -137,20 +136,24 @@ st.markdown(f"""
 }}
 
 html, body, [class*="stApp"] {{
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'Hind Siliguri', sans-serif !important;
     background-color: var(--bg-deep) !important;
     color: var(--text-main) !important;
 }}
 
-/* Subtle ambient background glow */
+/* Wide container for better reading experience like modern chat UIs */
+.block-container {{
+    padding-top: 2rem !important;
+    max-width: 900px !important; 
+    margin: 0 auto;
+}}
+
 [data-testid="stAppViewContainer"] {{
     background-image:
-        radial-gradient(ellipse 80% 50% at 50% -10%, var(--accent-glow), transparent),
-        radial-gradient(ellipse 60% 40% at 100% 0%, var(--accent-glow), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent);
     background-repeat: no-repeat;
 }}
 
-/* Hide default Streamlit chrome */
 #MainMenu {{visibility: hidden;}}
 footer {{visibility: hidden;}}
 header[data-testid="stHeader"] {{ background: transparent; }}
@@ -158,56 +161,56 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 /* Typography */
 .stMarkdown, .stMarkdown p, .stMarkdown li {{
     color: var(--text-main) !important;
-    line-height: 1.7;
+    line-height: 1.85; /* Extra line height for Bengali readability */
+    font-size: 1.02rem;
 }}
 .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
     color: var(--text-main) !important;
     font-weight: 700 !important;
+    margin-top: 1.5rem;
 }}
 .stMarkdown h3 {{
-    font-size: 1.08rem !important;
-    margin-top: 1.2rem !important;
-    padding-bottom: 0.35rem;
+    font-size: 1.1rem !important;
+    padding-bottom: 0.4rem;
     border-bottom: 1px solid var(--border-soft);
+    color: var(--accent);
 }}
 .stMarkdown strong {{ color: var(--accent); font-weight: 600; }}
 .stCaption, [data-testid="stCaptionContainer"] {{
     color: var(--text-muted) !important;
 }}
 
-/* =========================================
-   SIDEBAR
-   ========================================= */
+/* Sidebar */
 section[data-testid="stSidebar"] {{
     background-color: var(--bg-sidebar) !important;
     border-right: 1px solid var(--border-soft);
 }}
 section[data-testid="stSidebar"] > div {{
-    padding-top: 1.2rem;
+    padding-top: 1.5rem;
 }}
 
 .brand-block {{
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0.2rem 0 1rem 0;
+    gap: 12px;
+    padding: 0.5rem 0 1.5rem 0;
 }}
 .brand-icon {{
-    width: 38px; height: 38px;
-    border-radius: 11px;
+    width: 42px; height: 42px;
+    border-radius: 12px;
     background: linear-gradient(135deg, var(--accent), var(--accent-dim));
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.15rem;
+    font-size: 1.3rem;
     box-shadow: 0 4px 14px var(--accent-glow);
     flex-shrink: 0;
 }}
 .brand-text h2 {{
-    margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text-main);
+    margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--text-main);
     letter-spacing: -0.02em;
 }}
 .brand-text span {{
-    font-size: 0.72rem; color: var(--text-muted); font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.06em;
+    font-size: 0.75rem; color: var(--text-muted); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.08em;
 }}
 
 .section-label {{
@@ -216,7 +219,7 @@ section[data-testid="stSidebar"] > div {{
     color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin: 1.1rem 0 0.5rem 0;
+    margin: 1.5rem 0 0.6rem 0;
 }}
 
 .stat-pill {{
@@ -225,7 +228,7 @@ section[data-testid="stSidebar"] > div {{
     gap: 6px;
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    padding: 5px 11px;
+    padding: 6px 12px;
     border-radius: 999px;
     font-size: 0.75rem;
     color: var(--text-muted);
@@ -244,74 +247,71 @@ section[data-testid="stSidebar"] > div {{
     color: var(--text-main);
     border-radius: 10px;
     font-weight: 500;
-    font-size: 0.88rem;
-    padding: 0.55rem 0.8rem;
-    transition: all 0.18s ease;
+    font-size: 0.9rem;
+    padding: 0.65rem 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
     box-shadow: var(--shadow-card);
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 .stButton > button:hover, .stDownloadButton > button:hover {{
     border-color: var(--accent);
     color: var(--accent);
     background-color: var(--accent-glow);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-glow);
 }}
 .stButton > button:active {{
     transform: translateY(0px);
 }}
 .stButton > button p {{ text-align: left !important; }}
 
-/* Primary CTA style for the clear-chat button */
 div[data-testid="stSidebar"] .stButton:last-of-type > button {{
     border-color: var(--danger);
     color: var(--danger);
 }}
 div[data-testid="stSidebar"] .stButton:last-of-type > button:hover {{
-    background-color: rgba(248, 113, 113, 0.08);
+    background-color: rgba(239, 68, 68, 0.08);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.1);
 }}
 
-/* Radio pills for theme */
 div[role="radiogroup"] {{
-    gap: 6px;
+    gap: 8px;
 }}
 div[role="radiogroup"] label {{
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    padding: 4px 12px !important;
-    border-radius: 8px !important;
-    transition: all 0.15s ease;
+    padding: 6px 16px !important;
+    border-radius: 10px !important;
+    transition: all 0.2s ease;
 }}
 div[role="radiogroup"] label:hover {{
     border-color: var(--accent);
 }}
 
-/* Segmented accent swatches */
-.accent-row {{ display: flex; gap: 8px; margin: 0.3rem 0 0.2rem 0; }}
-
-/* =========================================
-   HERO HEADER
-   ========================================= */
+/* Hero Header */
 .hero-wrap {{
     text-align: center;
-    padding: 1.4rem 0 1.8rem 0;
+    padding: 2rem 0 2.5rem 0;
 }}
 .hero-badge {{
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     background: var(--accent-glow);
     color: var(--accent);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 5px 13px;
+    padding: 6px 16px;
     border-radius: 999px;
-    margin-bottom: 0.9rem;
-    border: 1px solid var(--accent-glow);
+    margin-bottom: 1.2rem;
+    border: 1px solid var(--border-soft);
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 .hero-title {{
-    font-size: 2.15rem;
+    font-size: 2.5rem;
     font-weight: 800;
     margin: 0;
     letter-spacing: -0.03em;
@@ -319,69 +319,75 @@ div[role="radiogroup"] label:hover {{
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 .hero-sub {{
     color: var(--text-muted);
-    font-size: 0.98rem;
-    margin-top: 0.55rem;
+    font-size: 1.05rem;
+    margin-top: 0.8rem;
     font-weight: 400;
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 
-/* =========================================
-   EMPTY STATE
-   ========================================= */
+/* Empty State */
 .empty-state {{
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    border-radius: 16px;
-    padding: 1.6rem 1.5rem;
+    border-radius: 20px;
+    padding: 2rem;
     text-align: center;
     box-shadow: var(--shadow-card);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }}
 .empty-state-icon {{
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
+    font-size: 2.2rem;
+    margin-bottom: 0.8rem;
 }}
 .empty-state p {{
     color: var(--text-muted);
-    font-size: 0.92rem;
-    max-width: 420px;
+    font-size: 1rem;
+    max-width: 480px;
     margin: 0 auto;
-    line-height: 1.6;
+    line-height: 1.8;
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 .suggestion-grid {{
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 1.1rem;
+    gap: 12px;
+    margin-top: 1.5rem;
 }}
 .suggestion-chip {{
     background: var(--bg-card-2);
     border: 1px solid var(--border-soft);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
     color: var(--text-main);
     text-align: left;
     font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: 'Hind Siliguri', sans-serif !important;
+    cursor: pointer;
+}}
+.suggestion-chip:hover {{
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    transform: translateY(-2px);
 }}
 
-/* =========================================
-   CHAT MESSAGES
-   ========================================= */
+/* Chat Messages (Qwen Style) */
 div[data-testid="stChatMessage"] {{
     background-color: transparent !important;
     border: none !important;
-    padding: 0.85rem 0 !important;
-    animation: fadeSlideIn 0.35s ease;
+    padding: 1rem 0 !important;
+    animation: fadeSlideIn 0.4s ease;
 }}
 @keyframes fadeSlideIn {{
-    from {{ opacity: 0; transform: translateY(6px); }}
+    from {{ opacity: 0; transform: translateY(10px); }}
     to   {{ opacity: 1; transform: translateY(0); }}
 }}
 
-/* Avatar circles */
 div[data-testid="stChatMessageAvatarUser"] {{
     background: linear-gradient(135deg, var(--accent), var(--accent-dim)) !important;
     box-shadow: 0 3px 10px var(--accent-glow);
@@ -389,22 +395,32 @@ div[data-testid="stChatMessageAvatarUser"] {{
 div[data-testid="stChatMessageAvatarAssistant"] {{
     background: var(--bg-card-2) !important;
     border: 1px solid var(--border-soft);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }}
 
-/* User message gets a soft bubble via markdown container */
+/* User message gets a soft bubble */
 div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) .stMarkdown {{
     background: var(--user-bubble);
-    border-radius: 16px 16px 4px 16px;
-    padding: 0.75rem 1.05rem;
+    border-radius: 18px 18px 4px 18px;
+    padding: 1rem 1.25rem;
     display: inline-block;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    font-family: 'Hind Siliguri', sans-serif !important;
+}}
+
+/* Assistant message typography */
+div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarAssistant"]) .stMarkdown {{
+    font-family: 'Hind Siliguri', sans-serif !important;
+    padding: 0.5rem 0;
 }}
 
 .msg-timestamp {{
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     color: var(--text-faint);
-    margin-top: 4px;
+    margin-top: 6px;
     font-weight: 500;
     letter-spacing: 0.02em;
+    font-family: 'Inter', sans-serif !important;
 }}
 
 /* Code blocks */
@@ -412,14 +428,15 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"])
     background-color: var(--code-bg) !important;
     color: var(--accent) !important;
     border: 1px solid var(--border-soft);
-    border-radius: 5px;
-    padding: 1px 5px;
+    border-radius: 6px;
+    padding: 2px 6px;
     font-size: 0.88em;
+    font-family: 'JetBrains Mono', monospace;
 }}
 .stMarkdown pre {{
     background-color: var(--code-bg) !important;
     border: 1px solid var(--border-soft) !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     box-shadow: var(--shadow-card);
 }}
 .stMarkdown pre code {{
@@ -438,26 +455,27 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"])
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 1.4rem 0;
-    font-size: 0.92rem;
-    border-radius: 10px;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--border-soft);
     box-shadow: var(--shadow-card);
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 .stMarkdown th {{
     background-color: var(--bg-card-2);
     color: var(--accent);
     font-weight: 700;
     text-align: left;
-    padding: 11px 15px;
+    padding: 12px 18px;
     border-bottom: 2px solid var(--accent);
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }}
 .stMarkdown td {{
-    padding: 11px 15px;
+    padding: 12px 18px;
     border-bottom: 1px solid var(--border-soft);
     color: var(--text-main);
     background-color: var(--bg-card);
@@ -467,66 +485,68 @@ div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"])
 
 /* Blockquotes */
 .stMarkdown blockquote {{
-    border-left: 3px solid var(--accent);
+    border-left: 4px solid var(--accent);
     background: var(--bg-card);
-    padding: 0.6rem 1rem;
-    border-radius: 0 8px 8px 0;
+    padding: 0.8rem 1.2rem;
+    border-radius: 0 10px 10px 0;
     color: var(--text-muted) !important;
-    margin: 1rem 0;
+    margin: 1.2rem 0;
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 
-/* =========================================
-   PREMIUM MINIMAL ASK BAR (CHAT INPUT)
-   ========================================= */
+/* PREMIUM CHAT INPUT */
 .stChatInput {{
-    background: linear-gradient(to bottom, transparent, var(--bg-deep) 30%) !important;
-    padding-top: 28px !important;
+    background: linear-gradient(to bottom, transparent, var(--bg-deep) 40%) !important;
+    padding-top: 40px !important;
 }}
 .stChatInput textarea {{
     background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 22px !important;
-    padding: 16px 24px !important;
-    font-size: 0.98rem !important;
-    line-height: 1.5 !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: 24px !important;
+    padding: 18px 28px !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
     box-shadow: var(--shadow-input) !important;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 .stChatInput textarea:focus {{
     border-color: var(--accent) !important;
     box-shadow: var(--shadow-input-focus) !important;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     background-color: var(--bg-deep) !important;
 }}
 .stChatInput textarea::placeholder {{
     color: var(--text-muted) !important;
-    font-weight: 300;
-    opacity: 0.85;
+    font-weight: 400;
+    opacity: 0.8;
 }}
 .stChatInput button {{
     color: var(--accent) !important;
+    transition: all 0.2s ease;
+}}
+.stChatInput button:hover {{
+    transform: scale(1.05);
 }}
 
-/* Divider */
 hr, [data-testid="stDivider"] {{
     border-color: var(--border-soft) !important;
-    margin: 1rem 0 !important;
+    margin: 1.5rem 0 !important;
 }}
 
-/* Alerts */
 .stAlert {{
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     border: 1px solid var(--border-soft) !important;
     box-shadow: var(--shadow-card);
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 
-/* Spinner text */
 .stSpinner > div {{
     text-align: left;
+    font-family: 'Hind Siliguri', sans-serif !important;
 }}
 
-/* Minimalist scrollbar */
 ::-webkit-scrollbar {{ width: 8px; height: 8px; }}
 ::-webkit-scrollbar-track {{ background: transparent; }}
 ::-webkit-scrollbar-thumb {{ background: var(--border); border-radius: 4px; }}
@@ -562,10 +582,10 @@ load_dotenv()
 api = os.getenv("MISTRAL_API_KEY")
 
 if not api:
-    st.error("🚫 **MISTRAL_API_KEY not found.** Add it to your `.env` file and restart.")
+    st.error("🚫 **MISTRAL_API_KEY পাওয়া যায়নি।** অনুগ্রহ করে আপনার `.env` ফাইলে এটি যুক্ত করুন এবং অ্যাপটি রিস্টার্ট করুন।")
     st.stop()
 
-model = ChatMistralAI(model="mistral-small-2506", mistral_api_key=api)
+model = ChatMistralAI(model="mistral-small-latest", mistral_api_key=api)
 
 # =========================================================
 # SIDEBAR CONTROL PANEL
@@ -573,23 +593,23 @@ model = ChatMistralAI(model="mistral-small-2506", mistral_api_key=api)
 with st.sidebar:
     st.markdown("""
     <div class="brand-block">
-        <div class="brand-icon">🧠</div>
+        <div class="brand-icon">🎓</div>
         <div class="brand-text">
             <h2>MindMentor</h2>
-            <span>AI Study Companion</span>
+            <span>প্রতীমার স্টাডি পার্টনার</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     n_exchanges = sum(1 for m in st.session_state.messages if isinstance(m, HumanMessage))
     st.markdown(f"""
-    <div class="stat-pill"><span class="stat-dot"></span> {n_exchanges} question{'s' if n_exchanges != 1 else ''} this session</div>
+    <div class="stat-pill"><span class="stat-dot"></span> এই সেশনে {n_exchanges}টি প্রশ্ন</div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="section-label">Appearance</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">অ্যাপিয়ারেন্স</div>', unsafe_allow_html=True)
 
     st.session_state.theme = st.radio(
-        "Theme",
+        "থিম",
         ["Dark", "Light"],
         horizontal=True,
         index=0 if st.session_state.theme == "Dark" else 1,
@@ -598,70 +618,70 @@ with st.sidebar:
 
     accent_names = list(ACCENTS.keys())
     st.session_state.accent_choice = st.selectbox(
-        "Accent color",
+        "অ্যাকসেন্ট কালার",
         accent_names,
         index=accent_names.index(st.session_state.accent_choice),
         label_visibility="collapsed"
     )
 
-    st.markdown('<div class="section-label">Quick Actions</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">দ্রুত অ্যাকশন</div>', unsafe_allow_html=True)
 
     def _add_prompt(text):
         st.session_state.messages.append(HumanMessage(content=text))
         st.session_state.meta[len(st.session_state.messages) - 1] = {"time": datetime.now().strftime("%H:%M")}
 
-    if st.button("💡 Explain a Concept", use_container_width=True):
-        _add_prompt("I want to learn about a new concept. Ask me what it is, and then break it down for me simply using analogies.")
+    if st.button("💡 একটি ধারণা ব্যাখ্যা করো", use_container_width=True):
+        _add_prompt("আমি একটি নতুন বিষয় সম্পর্কে জানতে চাই। আমাকে জিজ্ঞেস করো সেটি কী, এবং তারপর সহজ বাংলায় উপমা দিয়ে বোঝাও।")
         st.rerun()
 
-    if st.button("🗓️ Build a Study Plan", use_container_width=True):
-        _add_prompt("Help me create a structured study schedule. Ask me what I'm studying, my goals, and how much time I have available.")
+    if st.button("🗓️ স্টাডি প্ল্যান তৈরি করো", use_container_width=True):
+        _add_prompt("আমার জন্য একটি সুসংগঠিত পড়াশোনার রুটিন তৈরি করতে সাহায্য করো। আমি কী পড়ছি, আমার লক্ষ্য কী এবং আমার কাছে কতটা সময় আছে তা আমাকে জিজ্ঞেস করো।")
         st.rerun()
 
-    if st.button("📐 Solve a Math Problem", use_container_width=True):
-        _add_prompt("I have a math problem. Ask me to provide it, and then solve it step-by-step using proper LaTeX formatting.")
+    if st.button("📐 গণিতের সমস্যা সমাধান করো", use_container_width=True):
+        _add_prompt("আমার কাছে একটি গণিতের সমস্যা আছে। আমাকে সেটি দিতে বলো, এবং তারপর সঠিক ফরম্যাটিং ব্যবহার করে ধাপে ধাপে সমাধান করো।")
         st.rerun()
 
-    if st.button("🎯 Quiz Me", use_container_width=True):
-        _add_prompt("Quiz me on a topic of my choice. Ask me what subject first, then ask one question at a time and check my answers.")
+    if st.button("🎯 আমাকে কুইজ দাও", use_container_width=True):
+        _add_prompt("আমার পছন্দের একটি বিষয়ে আমাকে কুইজ দাও। প্রথমে বিষয়টি জিজ্ঞেস করো, তারপর একবারে একটি করে প্রশ্ন করো এবং আমার উত্তর যাচাই করো।")
         st.rerun()
 
-    st.markdown('<div class="section-label">Export & Manage</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">নোটস এবং ম্যানেজমেন্ট</div>', unsafe_allow_html=True)
 
     if len(st.session_state.messages) > 1:
-        notes = f"# MindMentor Study Notes\n_Exported {datetime.now().strftime('%B %d, %Y at %H:%M')}_\n\n---\n\n"
+        notes = f"# প্রতীমার MindMentor স্টাডি নোটস\n_রপ্তানি করা হয়েছে {datetime.now().strftime('%d %B, %Y %H:%M')}_\n\n---\n\n"
         for msg in st.session_state.messages:
             if isinstance(msg, HumanMessage):
-                notes += f"### ❓ Question\n{msg.content}\n\n"
+                notes += f"### ❓ প্রশ্ন\n{msg.content}\n\n"
             elif isinstance(msg, AIMessage):
-                notes += f"### 💡 Answer\n{msg.content}\n\n---\n\n"
+                notes += f"### 💡 উত্তর\n{msg.content}\n\n---\n\n"
 
         st.download_button(
-            label="📥 Export Notes (.md)",
+            label="📥 নোটস ডাউনলোড করুন (.md)",
             data=notes,
             file_name=f"mindmentor_notes_{datetime.now().strftime('%Y%m%d_%H%M')}.md",
             mime="text/markdown",
             use_container_width=True
         )
     else:
-        st.button("📥 Export Notes (.md)", disabled=True, use_container_width=True)
+        st.button("📥 নোটস ডাউনলোড করুন (.md)", disabled=True, use_container_width=True)
 
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
+    if st.button("🗑️ চ্যাট ইতিহাস মুছে ফেলুন", use_container_width=True):
         st.session_state.messages = [SystemMessage(content=SYSTEM_PROMPT)]
         st.session_state.meta = {0: {"time": datetime.now().strftime("%H:%M")}}
         st.rerun()
 
-    st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
-    st.caption("Powered by Mistral Small · Built with LangChain")
+    st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+    st.caption("Mistral AI দ্বারা চালিত · LangChain দিয়ে তৈরি")
 
 # =========================================================
 # HERO HEADER
 # =========================================================
 st.markdown(
     """<div class="hero-wrap">
-        <div class="hero-badge">🧠 Elite AI Tutoring</div>
-        <h1 class="hero-title">MindMentor</h1>
-        <p class="hero-sub">Structured explanations, step-by-step math, and honest guidance — all in one place.</p>
+        <div class="hero-badge">🎓 একাদশ শ্রেণি · বিজ্ঞান বিভাগ (WBCHSE)</div>
+        <h1 class="hero-title">স্বাগতম, প্রতীমা!</h1>
+        <p class="hero-sub">WBCHSE সিলেবাস অনুযায়ী পদার্থবিদ্যা, রসায়ন, জীববিদ্যা ও গণিতের সম্পূর্ণ সমাধান, সহজ বাংলায়।</p>
     </div>""",
     unsafe_allow_html=True
 )
@@ -675,12 +695,12 @@ if not has_conversation:
     st.markdown("""
     <div class="empty-state">
         <div class="empty-state-icon">✨</div>
-        <p><strong>Ready when you are.</strong><br>Ask a study question, request a concept breakdown, or just think out loud. Try one of these to get started:</p>
+        <p><strong>স্বাগতম, প্রতীমা!</strong><br>তোমার একাদশ শ্রেণির বিজ্ঞান যাত্রার সঙ্গী হিসেবে আমি প্রস্তুত। পড়াশোনার যেকোনো সন্দেহ বা ব্যক্তিগত পরামর্শের জন্য আমাকে জিজ্ঞেস করতে পারো। শুরু করার জন্য নিচের যেকোনোটি বেছে নাও:</p>
         <div class="suggestion-grid">
-            <div class="suggestion-chip">📊 "Explain gradient descent simply"</div>
-            <div class="suggestion-chip">📐 "Solve: ∫x²e^x dx"</div>
-            <div class="suggestion-chip">🗓️ "Plan my exam week"</div>
-            <div class="suggestion-chip">💬 "I'm stressed about finals"</div>
+            <div class="suggestion-chip">📊 "সহজ বাংলায় গ্রেডিয়েন্ট ডিসেন্ট বোঝাও"</div>
+            <div class="suggestion-chip">📐 "সমাধান করো: ∫x²e^x dx"</div>
+            <div class="suggestion-chip">🧬 "মাইটোসিস ও মিয়োসিসের পার্থক্য কী?"</div>
+            <div class="suggestion-chip">💬 "পরীক্ষার চাপে খুব দুশ্চিন্তা হচ্ছে"</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -689,7 +709,7 @@ for idx, msg in enumerate(st.session_state.messages):
     if isinstance(msg, SystemMessage):
         continue
     role = "user" if isinstance(msg, HumanMessage) else "assistant"
-    avatar = "🧑" if role == "user" else "🧠"
+    avatar = "👩🏻‍🎓" if role == "user" else "🧠"
 
     with st.chat_message(role, avatar=avatar):
         st.markdown(clean_and_format(msg.content))
@@ -701,26 +721,26 @@ for idx, msg in enumerate(st.session_state.messages):
 # =========================================================
 # CHAT INPUT + AI LOGIC
 # =========================================================
-if prompt := st.chat_input("Ask anything... Math, Study Plans, Life Advice"):
+if prompt := st.chat_input("পড়াশোনা বা ব্যক্তিগত যেকোনো প্রশ্ন বাংলায় জিজ্ঞেস করো..."):
     if not prompt.strip():
-        st.warning("Please enter a question or thought to continue.")
+        st.warning("অনুগ্রহ করে একটি প্রশ্ন বা চিন্তা লিখুন।")
     else:
         # 1. Add and display user message
         st.session_state.messages.append(HumanMessage(content=prompt))
         user_idx = len(st.session_state.messages) - 1
         st.session_state.meta[user_idx] = {"time": datetime.now().strftime("%H:%M")}
 
-        with st.chat_message("user", avatar="🧑"):
+        with st.chat_message("user", avatar="👩🏻‍🎓"):
             st.markdown(prompt)
             st.markdown(f"<div class='msg-timestamp' style='text-align:right;'>{st.session_state.meta[user_idx]['time']}</div>", unsafe_allow_html=True)
 
         # 2. Generate and display AI response
         with st.chat_message("assistant", avatar="🧠"):
             thinking_labels = [
-                "Thinking it through...",
-                "Structuring the answer...",
-                "Working through the logic...",
-                "Connecting the dots...",
+                "চিন্তা করা হচ্ছে...",
+                "উত্তর সাজানো হচ্ছে...",
+                "যুক্তি বিশ্লেষণ করা হচ্ছে...",
+                "সংযোগ স্থাপন করা হচ্ছে...",
             ]
             with st.spinner(random.choice(thinking_labels)):
                 try:
@@ -728,13 +748,13 @@ if prompt := st.chat_input("Ask anything... Math, Study Plans, Life Advice"):
                     response = clean_and_format(result.content)
                 except Exception as e:
                     response = (
-                        "⚠️ **Something went wrong reaching the model.**\n\n"
+                        "⚠️ **মডেলের সাথে সংযোগ স্থাপনে কিছু সমস্যা হয়েছে।**\n\n"
                         f"```\n{str(e)}\n```\n\n"
-                        "Double-check your `MISTRAL_API_KEY` and internet connection, then try again."
+                        "অনুগ্রহ করে আপনার `MISTRAL_API_KEY` এবং ইন্টারনেট সংযোগ পরীক্ষা করুন।"
                     )
 
             st.markdown(response)
-            ai_idx = len(st.session_state.messages)  # index this AI message will occupy
+            ai_idx = len(st.session_state.messages)
             ts_now = datetime.now().strftime("%H:%M")
             st.markdown(f"<div class='msg-timestamp' style='text-align:left;'>{ts_now}</div>", unsafe_allow_html=True)
 
