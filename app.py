@@ -22,7 +22,6 @@ if "theme" not in st.session_state:
     st.session_state.theme = "Dark"
 
 if "messages" not in st.session_state:
-    # ELITE SYSTEM PROMPT: Strictly enforces Markdown, Tables, and Math formatting
     st.session_state.messages = [SystemMessage(content="""You are "MindMentor", an elite AI tutor, academic guide, and empathetic personal advisor. 
 Your goal is to provide clear, structured, and deeply insightful answers.
 
@@ -47,7 +46,7 @@ TONE & PEDAGOGY:
 """)]
 
 # =========================================================
-# DYNAMIC CSS (LIGHT & DARK MODE + PREMIUM TABLES)
+# DYNAMIC CSS (LIGHT & DARK MODE + PREMIUM ASK BAR)
 # =========================================================
 theme = st.session_state.theme
 
@@ -61,6 +60,8 @@ if theme == "Dark":
         --text-muted: #94A3B8;
         --border: #334155;
         --code-bg: #0F172A;
+        --shadow-input: 0 8px 24px rgba(0, 0, 0, 0.4);
+        --shadow-input-focus: 0 8px 30px rgba(59, 130, 246, 0.2);
     """
 else:
     css_vars = """
@@ -72,6 +73,8 @@ else:
         --text-muted: #64748B;
         --border: #E2E8F0;
         --code-bg: #F1F5F9;
+        --shadow-input: 0 8px 24px rgba(0, 0, 0, 0.06);
+        --shadow-input-focus: 0 8px 30px rgba(37, 99, 235, 0.12);
     """
 
 st.markdown(f"""
@@ -118,16 +121,41 @@ section[data-testid="stSidebar"] {{
     background-color: rgba(59, 130, 246, 0.05);
 }}
 
-/* Chat Input */
+/* =========================================
+   PREMIUM MINIMAL ASK BAR (CHAT INPUT)
+   ========================================= */
+/* Add a gradient mask so chat messages fade into the input area */
+.stChatInput {{
+    background: linear-gradient(to bottom, transparent, var(--bg-deep) 25%) !important;
+    padding-top: 25px !important;
+}}
+
+/* The actual text area */
 .stChatInput textarea {{
     background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
     border: 1px solid var(--border) !important;
-    border-radius: 8px !important;
+    border-radius: 20px !important; /* Soft, modern curve */
+    padding: 16px 24px !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    box-shadow: var(--shadow-input) !important; /* Floating effect */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }}
+
+/* Focus state: Lift up and glow */
 .stChatInput textarea:focus {{
     border-color: var(--accent) !important;
-    box-shadow: 0 0 0 1px var(--accent) !important;
+    box-shadow: var(--shadow-input-focus) !important;
+    transform: translateY(-2px); /* Micro-interaction lift */
+    background-color: var(--bg-deep) !important;
+}}
+
+/* Placeholder styling */
+.stChatInput textarea::placeholder {{
+    color: var(--text-muted) !important;
+    font-weight: 300;
+    opacity: 0.8;
 }}
 
 /* Code blocks */
@@ -310,7 +338,8 @@ for msg in st.session_state.messages:
 # =========================================================
 # CHAT INPUT + AI LOGIC
 # =========================================================
-if prompt := st.chat_input("Ask a question or share your thoughts..."):
+# Updated placeholder text to be cleaner and more inviting
+if prompt := st.chat_input("Ask anything... Math, Study Plans, Life Advice"):
     if not prompt.strip():
         st.warning("Please enter a question or thought to continue.")
     else:
